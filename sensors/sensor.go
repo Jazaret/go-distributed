@@ -63,6 +63,7 @@ func main() {
 		//jsonMsg, _ := json.Marshal(reading)
 
 		buf.Reset()
+		enc = gob.NewEncoder(buf)
 		enc.Encode(reading)
 
 		msg := amqp.Publishing{
