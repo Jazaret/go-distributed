@@ -60,6 +60,8 @@ func main() {
 			Timestamp: time.Now(),
 		}
 
+		//jsonMsg, _ := json.Marshal(reading)
+
 		buf.Reset()
 		enc.Encode(reading)
 
@@ -74,7 +76,7 @@ func main() {
 			false,
 			msg)
 
-		log.Printf("Reading sent. Value: %v\n", value)
+		log.Printf("Reading sent. Value: %v\n", reading)
 
 	}
 
