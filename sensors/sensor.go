@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/gob"
 	"flag"
+	"fmt"
 	"log"
 	"math/rand"
 	"strconv"
@@ -36,14 +37,17 @@ func main() {
 
 	dataQueue := qutils.GetQueue(*name, ch)
 
-	msg := amqp.Publishing{Body: []byte(*name)}
+	publishQueueName(ch)
 
-	ch.Publish(
-		"amq.fanout",
+	discoveryQueue := qutils.GetQueue("", ch)
+	ch.QueueBind(
+		discoveryQueue.Name,
 		"",
+		qutils.SensoryDiscoveryExchange,
 		false,
-		false,
-		msg)
+		nil)
+
+	go listenForDiscoverRequests(discoveryQueue.Name, ch)
 
 	dur, _ := time.ParseDuration(strconv.Itoa(1000/int(*freq)) + "ms")
 
@@ -59,8 +63,6 @@ func main() {
 			Value:     value,
 			Timestamp: time.Now(),
 		}
-
-		//jsonMsg, _ := json.Marshal(reading)
 
 		buf.Reset()
 		enc = gob.NewEncoder(buf)
@@ -81,6 +83,33 @@ func main() {
 
 	}
 
+}
+
+func listenForDiscoverRequests(name string, ch *amqp.Channel) {
+	fmt.Println("listening for discover requests")
+	msgs, _ := ch.Consume(
+		name,
+		"",
+		true,
+		false,
+		false,
+		false,
+		nil)
+
+	for range msgs {
+		fmt.Println("msg found publish queue name")
+		publishQueueName(ch)
+	}
+}
+
+func publishQueueName(ch *amqp.Channel) {
+	msg := amqp.Publishing{Body: []byte(*name)}
+	ch.Publish(
+		"amq.fanout",
+		"",
+		false,
+		false,
+		msg)
 }
 
 func calcValue() {
