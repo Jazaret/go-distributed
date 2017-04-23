@@ -8,6 +8,7 @@ import (
 )
 
 const SensoryDiscoveryExchange = "SensorDiscovery"
+const PersistReadingsQueue = "PersistReading"
 
 const SensorListQueue = "SensorList"
 
