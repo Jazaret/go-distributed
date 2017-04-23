@@ -10,6 +10,10 @@ import (
 const SensoryDiscoveryExchange = "SensorDiscovery"
 const PersistReadingsQueue = "PersistReading"
 
+const WebappSourceExchange = "WebappSources"
+const WebappReadingsExchange = "WebappReading"
+const WebappDiscoveryQueue = "WebappDiscovery"
+
 const SensorListQueue = "SensorList"
 
 func GetChannel(url string) (*amqp.Connection, *amqp.Channel) {
