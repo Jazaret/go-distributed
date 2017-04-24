@@ -1,6 +1,9 @@
 package coordinator
 
-import "time"
+import (
+	"fmt"
+	"time"
+)
 
 type EventRaiser interface {
 	AddListener(eventName string, f func(interface{}))
@@ -25,6 +28,7 @@ func (ea *EventAggregator) AddListener(name string, f func(interface{})) {
 func (ea *EventAggregator) PublishEvent(name string, eventData interface{}) {
 	if ea.listeners[name] != nil {
 		for _, r := range ea.listeners[name] {
+			fmt.Printf("ea - calling func for publish event %v\n", r)
 			r(eventData)
 		}
 	}

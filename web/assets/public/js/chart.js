@@ -69,15 +69,13 @@ function updateChart(msg) {
   var pts = chart.options.data[0].dataPoints;
   var range = chart.options.data[1].dataPoints;
   var minSafeValue = parseFloat(node[0].dataset['minSafeValue']);
-  var minSafeValue = parseFloat(node[0].dataset['minSafeValue']);
-  
-    pts.push({x: new Date(msg.Timestamp), y: msg.Value});
-    while (pts.length > 20) {
-      pts.shift();
-    }
-    range[0] = {x: pts[0].x, y: [minSafeValue, maxSafeValue]};
-    range[1] = {x: pts[pts.length-1].x, y:[minSafeValue, maxSafeValue]};
-    chart.render();
-  
-
+  var maxSafeValue = parseFloat(node[0].dataset['maxSafeValue']);
+  pts.push({x: new Date(msg.Timestamp),
+     y: msg.Value});
+  while (pts.length > 20) {
+    pts.shift();
+  }
+  range[0] = {x: pts[0].x, y: [minSafeValue, maxSafeValue]};
+  range[1] = {x: pts[pts.length-1].x, y:[minSafeValue, maxSafeValue]};
+  chart.render();
 }

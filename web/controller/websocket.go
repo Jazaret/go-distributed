@@ -3,6 +3,7 @@ package controller
 import (
 	"bytes"
 	"encoding/gob"
+	"fmt"
 	"net/http"
 	"sync"
 
@@ -82,6 +83,7 @@ func (wsc *websocketController) listenForSources() {
 		nil)
 
 	for msg := range msgs {
+		fmt.Printf("wsc - SubscribeToDataEvent, body: %v\n", string(msg.Body))
 		sensor, _ := model.GetSensorByName(string(msg.Body))
 		wsc.sendMessage(message{
 			Type: "source",
@@ -92,6 +94,8 @@ func (wsc *websocketController) listenForSources() {
 
 func (wsc *websocketController) sendMessage(msg message) {
 	socketsToRemove := []*websocket.Conn{}
+
+	fmt.Printf("wsc - SubscribeToDataEvent, body: %v\n", msg)
 
 	for _, socket := range wsc.sockets {
 		err := socket.WriteJSON(msg)
@@ -128,27 +132,37 @@ func (wsc *websocketController) listenForDiscoveryRequests(socket *websocket.Con
 
 func (wsc *websocketController) listenForMessages() {
 	q := qutils.GetQueue("", wsc.ch, true)
+
 	wsc.ch.QueueBind(
-		q.Name,
-		"",
-		qutils.WebappReadingsExchange,
-		false,
-		nil)
+		q.Name, //name string,
+		"",     //key string,
+		qutils.WebappReadingsExchange, //exchange string,
+		false, //noWait bool,
+		nil)   //args amqp.Table)
+
+	fmt.Printf("wsc - listenForMessages - %v\n", q.Name)
 
 	msgs, _ := wsc.ch.Consume(
-		q.Name,
-		"",
-		true,
-		false,
-		false,
-		false,
-		nil)
+		q.Name, //queue string,
+		"",     //consumer string,
+		true,   //autoAck bool,
+		false,  //exclusive bool,
+		false,  //noLocal bool,
+		false,  //noWait bool,
+		nil)    //args amqp.Table)
 
 	for msg := range msgs {
+
 		buf := bytes.NewBuffer(msg.Body)
 		dec := gob.NewDecoder(buf)
 		sm := dto.SensorMessage{}
-		dec.Decode(&sm)
+		err := dec.Decode(&sm)
+
+		if err != nil {
+			println(err.Error())
+		}
+
+		fmt.Printf("wsc - sending actual message %v", sm)
 
 		wsc.sendMessage(message{
 			Type: "reading",

@@ -97,7 +97,7 @@ func (ql *QueueListener) AddListener(msgs <-chan amqp.Delivery) {
 		sd := new(dto.SensorMessage)
 		d.Decode(sd)
 
-		fmt.Printf("Recieved message: %v\n", sd)
+		fmt.Printf("Received message: %v\n", sd)
 
 		ed := EventData{
 			Name:      sd.Name,
@@ -105,6 +105,6 @@ func (ql *QueueListener) AddListener(msgs <-chan amqp.Delivery) {
 			Value:     sd.Value,
 		}
 
-		ql.ea.PublishEvent("MessageRecieved_"+msg.RoutingKey, ed)
+		ql.ea.PublishEvent("MessageReceived_"+msg.RoutingKey, ed)
 	}
 }

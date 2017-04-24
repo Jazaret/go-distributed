@@ -43,7 +43,7 @@ func (dc *DatabaseConsumer) SubscribeToDataEvent(eventName string) {
 		}
 	}
 
-	dc.er.AddListener("MessageRecieved_"+eventName, func() func(interface{}) {
+	dc.er.AddListener("MessageReceived_"+eventName, func() func(interface{}) {
 		prevTime := time.Unix(0, 0)
 
 		buf := new(bytes.Buffer)
